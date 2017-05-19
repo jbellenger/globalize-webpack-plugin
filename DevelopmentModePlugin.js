@@ -19,7 +19,7 @@ class DevelopmentModePlugin {
 
     i18nDataTemplate = [
       "var Globalize = require(\"globalize\");",
-      ""
+      "",
       `Globalize.load(${JSON.stringify(cldr(attributes.developmentLocale))});`,
       messages ?  `Globalize.loadMessages(${JSON.stringify(messages)});` : "",
       `Globalize.locale(${JSON.stringify(attributes.developmentLocale)});`,
@@ -43,15 +43,15 @@ class DevelopmentModePlugin {
     compiler.plugin("compilation", (compilation, params) => {
       params.normalModuleFactory.plugin("parser", (parser) => {
         parser.plugin("call require:commonjs:item", (expr, param) => {
-          const request = this.state.current.request;
+          const request = parser.state.current.request;
 
           if(param.isString() && param.string === "globalize" && this.moduleFilter(request) &&
             !(new RegExp(util.escapeRegex(this.i18nData))).test(request)) {
 
             const dep = new CommonJsRequireDependency(this.i18nData, param.range);
             dep.loc = expr.loc;
-            dep.optional = !!this.scope.inTry;
-            this.state.current.addDependency(dep);
+            dep.optional = !!parser.scope.inTry;
+            parser.state.current.addDependency(dep);
 
             return true;
           }
